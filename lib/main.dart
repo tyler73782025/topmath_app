@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart'; // 導入專業 PDF 引擎
 
 void main() => runApp(const MaterialApp(home: TopMathNative()));
 
@@ -10,37 +9,43 @@ class TopMathNative extends StatefulWidget {
 }
 
 class _TopMathNativeState extends State<TopMathNative> {
-  List<Offset?> points = [];
+  List<Offset?> points = []; // 儲存筆跡點位
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. 底層：PDF 教材 (這裡先放一個範例路徑，之後可以改選檔)
-          SfPdfViewer.network('https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf'),
+          // 1. 底層：JPG 背景圖 (先用一張範例圖，老師之後可以改路徑)
+          Center(
+            child: Image.network(
+              'https://picsum.photos/1024/768', 
+              fit: BoxFit.contain,
+            ),
+          ),
           
-          // 2. 中層：原生手寫畫布 (Raw Listener 模式)
+          // 2. 中層：原生手寫層 (這是消滅漏筆的核心)
           Listener(
             onPointerMove: (event) {
               setState(() {
-                // 🌟 這就是不漏筆的核心：捕捉 Raw 訊號，無視瀏覽器手勢判定
+                // 🌟 直接捕捉硬體座標，不經過瀏覽器的手勢過濾
                 points.add(event.localPosition);
               });
             },
-            onPointerUp: (event) => points.add(null),
+            onPointerUp: (event) => points.add(null), // 斷筆
             child: CustomPaint(
               painter: MyPainter(points: points),
               size: Size.infinite,
             ),
           ),
           
-          // 3. 上層：37 版經典圓角工具列
+          // 3. 上層：清除按鈕
           Positioned(
-            top: 50, right: 20,
+            bottom: 30, right: 30,
             child: FloatingActionButton(
               onPressed: () => setState(() => points = []),
-              child: const Icon(Icons.delete),
+              child: const Icon(Icons.refresh),
             ),
           ),
         ],
@@ -54,7 +59,10 @@ class MyPainter extends CustomPainter {
   MyPainter({required this.points});
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()..color = Colors.blue..strokeCap = StrokeCap.round..strokeWidth = 4.0;
+    Paint paint = Paint()
+      ..color = Colors.blue 
+      ..strokeCap = StrokeCap.round 
+      ..strokeWidth = 4.0;
     for (int i = 0; i < points.length - 1; i++) {
       if (points[i] != null && points[i + 1] != null) {
         canvas.drawLine(points[i]!, points[i + 1]!, paint);
