@@ -6,10 +6,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-      - run: flutter pub add syncfusion_flutter_pdfviewer # 自動增加 PDF 套件
+      - run: flutter pub add syncfusion_flutter_pdfviewer # 確保雲端會下載 PDF 套件
       - run: flutter build ipa --no-codesign
       - name: "產生成品檔案"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # 🌟 這裡改成 v4 就不會報錯了
         with:
           name: TopMath_Native_App
           path: build/ios/ipa/*.ipa
