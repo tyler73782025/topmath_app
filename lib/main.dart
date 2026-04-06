@@ -1,77 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart'; // 導入專業 PDF 引擎
 
-void main() => runApp(const TopMathApp());
+void main() => runApp(const MaterialApp(home: TopMathNative()));
 
-class TopMathApp extends StatelessWidget {
-  const TopMathApp({super.key});
+class TopMathNative extends StatefulWidget {
+  const TopMathNative({super.key});
   @override
-  Widget build(BuildContext context) => const MaterialApp(home: HandWritingScreen());
+  State<TopMathNative> createState() => _TopMathNativeState();
 }
 
-class HandWritingScreen extends StatefulWidget {
-  const HandWritingScreen({super.key});
-  @override
-  State<HandWritingScreen> createState() => _HandWritingScreenState();
-}
-
-class _HandWritingScreenState extends State<HandWritingScreen> {
-  // 🌟 核心：使用原生清單儲存點位，優先權高於網頁
-  List<Offset?> points = []; 
-  Color selectedColor = Colors.blue;
-  double strokeWidth = 4.5;
-
+class _TopMathNativeState extends State<TopMathNative> {
+  List<Offset?> points = [];
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // 畫布層：直接捕捉硬體訊號
-          GestureDetector(
-            onPanUpdate: (details) {
+          // 1. 底層：PDF 教材 (這裡先放一個範例路徑，之後可以改選檔)
+          SfPdfViewer.network('https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf'),
+          
+          // 2. 中層：原生手寫畫布 (Raw Listener 模式)
+          Listener(
+            onPointerMove: (event) {
               setState(() {
-                // 這裡的 details.localPosition 是原生系統直接傳回的座標
-                points.add(details.localPosition); 
+                // 🌟 這就是不漏筆的核心：捕捉 Raw 訊號，無視瀏覽器手勢判定
+                points.add(event.localPosition);
               });
             },
-            onPanEnd: (details) => points.add(null),
+            onPointerUp: (event) => points.add(null),
             child: CustomPaint(
-              painter: MyPainter(points: points, color: selectedColor, width: strokeWidth),
+              painter: MyPainter(points: points),
               size: Size.infinite,
             ),
           ),
-          // 🌟 37 版圓角懸浮工具列原生化
+          
+          // 3. 上層：37 版經典圓角工具列
           Positioned(
-            top: 40, right: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: const Color(0xEE2C3E50),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: [
-                  IconButton(onPressed: () => setState(() => points = []), 
-                             icon: const Icon(Icons.delete, color: Colors.redAccent)),
-                  const VerticalDivider(color: Colors.white24),
-                  _colorDot(Colors.blue),
-                  _colorDot(Colors.green),
-                  _colorDot(Colors.red),
-                ],
-              ),
+            top: 50, right: 20,
+            child: FloatingActionButton(
+              onPressed: () => setState(() => points = []),
+              child: const Icon(Icons.delete),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _colorDot(Color color) {
-    return GestureDetector(
-      onTap: () => setState(() => selectedColor = color),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        width: 20, height: 20,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
       ),
     );
   }
@@ -79,13 +51,10 @@ class _HandWritingScreenState extends State<HandWritingScreen> {
 
 class MyPainter extends CustomPainter {
   final List<Offset?> points;
-  final Color color;
-  final double width;
-  MyPainter({required this.points, required this.color, required this.width});
-
+  MyPainter({required this.points});
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()..color = color..strokeCap = StrokeCap.round..strokeWidth = width;
+    Paint paint = Paint()..color = Colors.blue..strokeCap = StrokeCap.round..strokeWidth = 4.0;
     for (int i = 0; i < points.length - 1; i++) {
       if (points[i] != null && points[i + 1] != null) {
         canvas.drawLine(points[i]!, points[i + 1]!, paint);

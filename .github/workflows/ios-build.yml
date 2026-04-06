@@ -1,12 +1,15 @@
 name: "打包 iPad APP"
-on: [push] # 只要您把程式碼傳上去，雲端就自動開始打包
+on: [push]
 jobs:
   build:
-    runs-on: macos-latest # 借用雲端的 Mac
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+      - run: flutter pub add syncfusion_flutter_pdfviewer # 自動增加 PDF 套件
+      - run: flutter build ipa --no-codesign
+      - name: "產生成品檔案"
+        uses: actions/upload-artifact@v3
         with:
-          channel: 'stable'
-      - run: flutter pub get
-      - run: flutter build ipa --no-codesign # 產生測試用的安裝包
+          name: TopMath_Native_App
+          path: build/ios/ipa/*.ipa
