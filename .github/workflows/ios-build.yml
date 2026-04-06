@@ -4,12 +4,12 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # 順便升級到 v4
       - uses: subosito/flutter-action@v2
-      - run: flutter pub add syncfusion_flutter_pdfviewer # 確保雲端會下載 PDF 套件
-      - run: flutter build ipa --no-codesign
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign # 🌟 改成編譯 iOS 框架而不簽名
       - name: "產生成品檔案"
-        uses: actions/upload-artifact@v4  # 🌟 這裡改成 v4 就不會報錯了
+        uses: actions/upload-artifact@v4
         with:
           name: TopMath_Native_App
-          path: build/ios/ipa/*.ipa
+          path: build/ios/iphoneos # 🌟 調整路徑，抓取編譯好的 App 本體
