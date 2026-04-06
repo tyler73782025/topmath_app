@@ -4,12 +4,14 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4 # 順便升級到 v4
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
       - run: flutter pub get
-      - run: flutter build ios --release --no-codesign # 🌟 改成編譯 iOS 框架而不簽名
-      - name: "產生成品檔案"
+      - name: "強制編譯 iOS 原始檔"
+        run: flutter build ios --release --no-codesign 
+      - name: "產生成品壓縮包"
         uses: actions/upload-artifact@v4
         with:
-          name: TopMath_Native_App
-          path: build/ios/iphoneos # 🌟 調整路徑，抓取編譯好的 App 本體
+          name: TopMath_App_Payload
+          # 🌟 這裡指向編譯好的 App 資料夾，這是 Sideloadly 最喜歡的格式
+          path: build/ios/iphoneos/Runner.app
