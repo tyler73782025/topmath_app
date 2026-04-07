@@ -10,11 +10,11 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "下載零件並編譯 (實體機正規版)"
+      - name: "極速編譯 (Debug 實體機版)"
         run: |
           flutter pub get
-          # 🌟 關鍵：強制指定 iphoneos 模式，並使用代碼跳過認證檢查
-          flutter build ios --release --no-codesign --no-tree-shake-icons
+          # 🌟 改成 debug 模式，這在跳過認證時最容易成功
+          flutter build ios --debug --no-codesign --no-tree-shake-icons
           
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
