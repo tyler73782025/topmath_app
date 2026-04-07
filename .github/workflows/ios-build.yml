@@ -10,14 +10,15 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "下載零件並編譯 (極速修復版)"
+      - name: "下載零件並編譯 (真機指令版)"
         run: |
           flutter pub get
-          # 🌟 修正點：移除多餘的參數，直接強制要求編譯模擬器架構但產出真機可讀的二進制碼
-          flutter build ios --debug --no-codesign --simulator
+          # 🌟 核心祕訣：我們不 build ios，我們 build ipa 但不簽名
+          # 這樣會產出真正的 ARM64 檔案，Sideloadly 才能正確接手
+          flutter build ios --release --no-codesign --no-tree-shake-icons
           
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
         with:
           name: TopMath_Pro_App
-          path: build/ios/iphonesimulator/Runner.app
+          path: build/ios/iphoneos/Runner.app
