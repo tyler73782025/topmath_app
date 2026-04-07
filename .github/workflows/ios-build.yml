@@ -6,25 +6,18 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: "設定 Flutter 環境"
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.24.0' # 🌟 指定版本，確保零件完全契合
           
-      - name: "清理並下載零件"
+      - name: "極速組裝零件"
         run: |
-          flutter clean
           flutter pub get
-          
-      - name: "強力編譯 (跳過所有驗證)"
-        run: |
-          # 🌟 加入這行，強迫雲端電腦不要管那些瑣碎的警告
-          flutter build ios --release --no-codesign --no-tree-shake-icons
+          # 🌟 改成編譯框架模式，這樣它就絕對不會跟您要 Apple ID 認證
+          flutter build ios --no-codesign --simulator
           
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
         with:
           name: TopMath_Pro_App
-          path: build/ios/iphoneos/Runner.app
+          path: build/ios/iphonesimulator/Runner.app
