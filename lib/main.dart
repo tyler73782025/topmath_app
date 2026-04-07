@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart'; // 🌟 引入手勢判斷
+import 'package:flutter/gestures.dart';
 import 'package:perfect_freehand/perfect_freehand.dart' as pf;
 
 void main() => runApp(const MaterialApp(home: TopMathUltra(), debugShowCheckedModeBanner: false));
@@ -27,23 +27,15 @@ class _TopMathUltraState extends State<TopMathUltra> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 底層教材
           Center(child: Image.network('https://picsum.photos/1024/768', fit: BoxFit.contain)),
-
-          // 核心繪圖層：加上 DeviceKind 過濾
           Listener(
             onPointerDown: (e) {
-              // 🌟 物理防誤觸：只准許「筆」進入，手指或手掌直接無視
               if (e.kind != PointerDeviceKind.stylus) return; 
-              setState(() {
-                currentLine = [pf.Point(e.localPosition.dx, e.localPosition.dy)];
-              });
+              setState(() => currentLine = [pf.Point(e.localPosition.dx, e.localPosition.dy)]);
             },
             onPointerMove: (e) {
               if (e.kind != PointerDeviceKind.stylus) return;
-              setState(() {
-                currentLine.add(pf.Point(e.localPosition.dx, e.localPosition.dy));
-              });
+              setState(() => currentLine.add(pf.Point(e.localPosition.dx, e.localPosition.dy)));
             },
             onPointerUp: (e) {
               if (e.kind != PointerDeviceKind.stylus) return;
@@ -57,8 +49,6 @@ class _TopMathUltraState extends State<TopMathUltra> {
               size: Size.infinite,
             ),
           ),
-
-          // 右側浮動工具列
           Positioned(
             top: 50, right: 20,
             child: Container(
@@ -72,36 +62,18 @@ class _TopMathUltraState extends State<TopMathUltra> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _colorBtn(Colors.blue), _colorBtn(Colors.red), _colorBtn(Colors.black),
-                  const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider()),
-                  IconButton(icon: const Icon(Icons.undo, color: Colors.blueGrey), onPressed: () => setState(() => history.isNotEmpty ? history.removeLast() : null)),
-                  IconButton(icon: const Icon(Icons.delete_forever, color: Colors.redAccent), onPressed: () => setState(() => history.clear())),
+                  const Divider(),
+                  IconButton(icon: const Icon(Icons.undo), onPressed: () => setState(() => history.isNotEmpty ? history.removeLast() : null)),
+                  IconButton(icon: const Icon(Icons.delete_forever), onPressed: () => setState(() => history.clear())),
                 ],
               ),
             ),
-          ),
-          
-          // 左下角狀態提示
-          const Positioned(
-            bottom: 20, left: 20,
-            child: Text("物理防誤觸：已啟動 (僅限筆尖)", style: TextStyle(color: Colors.grey, fontSize: 12)),
           ),
         ],
       ),
     );
   }
-
-  Widget _colorBtn(Color col) => GestureDetector(
-    onTap: () => setState(() => activeColor = col),
-    child: Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      width: 32, height: 32,
-      decoration: BoxDecoration(
-        color: col,
-        shape: BoxShape.circle,
-        border: Border.all(color: activeColor == col ? Colors.orange : Colors.transparent, width: 3),
-      ),
-    ),
-  );
+  Widget _colorBtn(Color col) => IconButton(icon: Icon(Icons.circle, color: col, size: 30), onPressed: () => setState(() => activeColor = col));
 }
 
 class UltraPainter extends CustomPainter {
@@ -119,13 +91,14 @@ class UltraPainter extends CustomPainter {
   void _draw(Canvas canvas, List<pf.Point> points, Color color) {
     if (points.isEmpty) return;
     
+    // 🌟 最終檢查點：這裡絕對、絕對、絕對沒有 const！
     final strokePoints = pf.getStroke(
       points,
-      options: const pf.StrokeOptions(
-        size: 4.8,          // 增加一點點粗度，讓視覺更穩定
-        thinning: 0.7,      // 增加筆鋒的動態感
-        smoothing: 0.65,    // 🌟 提升平滑度，解決轉彎鋸齒感
-        streamline: 0.4,    // 🌟 增加流暢補償
+      options: pf.StrokeOptions(
+        size: 4.8,
+        thinning: 0.7,
+        smoothing: 0.65,
+        streamline: 0.4,
         simulatePressure: true,
       ),
     );
