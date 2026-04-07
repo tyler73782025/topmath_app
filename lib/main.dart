@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:perfect_freehand/perfect_freehand.dart' as pf; // 🌟 加上 pf 標籤
+import 'package:perfect_freehand/perfect_freehand.dart' as pf;
 
 void main() => runApp(const MaterialApp(home: TopMathNative()));
 
@@ -10,7 +10,7 @@ class TopMathNative extends StatefulWidget {
 }
 
 class _TopMathNativeState extends State<TopMathNative> {
-  List<List<pf.Point>> lines = [[]]; // 🌟 使用 pf.Point
+  List<List<pf.Point>> lines = [[]];
   Color selectedColor = Colors.blue;
 
   @override
@@ -19,10 +19,10 @@ class _TopMathNativeState extends State<TopMathNative> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 1. 底層：您的教材 (範例圖)
+          // 1. 底層：教材圖 (範例)
           Center(child: Image.network('https://picsum.photos/1024/768', fit: BoxFit.contain)),
           
-          // 2. 中層：零漏筆手寫層 (Listener 原生監聽)
+          // 2. 中層：零漏筆原生監聽層
           Listener(
             onPointerDown: (e) => setState(() => lines.add([pf.Point(e.localPosition.dx, e.localPosition.dy)])),
             onPointerMove: (e) => setState(() => lines.last.add(pf.Point(e.localPosition.dx, e.localPosition.dy))),
@@ -69,14 +69,22 @@ class MyPainter extends CustomPainter {
     final paint = Paint()..color = color;
     for (final line in lines) {
       if (line.isEmpty) continue;
-      // 🌟 修正點：加上 pf. 讓電腦認得這個美化函式
-      final outlinePoints = pf.getOutlinePoints(line, size: 4, thinning: 0.5, smoothing: 0.5, streamline: 0.5);
+      
+      // 🌟 關鍵修正：函式名稱是 getOutline，不是 getOutlinePoints
+      final outlinePoints = pf.getOutline(line, options: const pf.JLOptions(
+        size: 4,
+        thinning: 0.5,
+        smoothing: 0.5,
+        streamline: 0.5,
+      ));
+      
       final path = Path();
       if (outlinePoints.isEmpty) continue;
       path.moveTo(outlinePoints[0].dx, outlinePoints[0].dy);
       for (final p in outlinePoints) {
         path.lineTo(p.dx, p.dy);
       }
+      path.close(); // 封閉路徑，讓筆觸更實心
       canvas.drawPath(path, paint);
     }
   }
