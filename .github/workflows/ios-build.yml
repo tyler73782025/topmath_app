@@ -10,14 +10,13 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "下載零件並編譯 (真機指令版)"
+      - name: "編譯實體機 ARM64 骨架"
         run: |
           flutter pub get
-          # 🌟 核心祕訣：我們不 build ios，我們 build ipa 但不簽名
-          # 這樣會產出真正的 ARM64 檔案，Sideloadly 才能正確接手
+          # 🌟 產出真正 A17 Pro 用的核心，不簽名以規避錯誤
           flutter build ios --release --no-codesign --no-tree-shake-icons
           
-      - name: "產生成品檔案"
+      - name: "上傳成品"
         uses: actions/upload-artifact@v4
         with:
           name: TopMath_Pro_App
