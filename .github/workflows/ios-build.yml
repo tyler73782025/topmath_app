@@ -10,14 +10,14 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "極速編譯 (Debug 實體機版)"
+      - name: "極速編譯 (萬用架構版)"
         run: |
           flutter pub get
-          # 🌟 改成 debug 模式，這在跳過認證時最容易成功
-          flutter build ios --debug --no-codesign --no-tree-shake-icons
+          # 🌟 核心祕訣：雖然編譯 simulator，但強制輸出 ARM64，這就是 iPad 能跑的關鍵
+          flutter build ios --debug --no-codesign --simulator --dart-define=FLUTTER_XCODE_ONLY_ARCH_QUERY=NO ARCHS=arm64
           
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
         with:
           name: TopMath_Pro_App
-          path: build/ios/iphoneos/Runner.app
+          path: build/ios/iphonesimulator/Runner.app
