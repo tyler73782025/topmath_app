@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:perfect_freehand/perfect_freehand.dart';
+import 'package:perfect_freehand/perfect_freehand.dart' as pf; // 🌟 加上 pf 標籤
 
 void main() => runApp(const MaterialApp(home: TopMathNative()));
 
@@ -10,8 +10,7 @@ class TopMathNative extends StatefulWidget {
 }
 
 class _TopMathNativeState extends State<TopMathNative> {
-  // 🌟 改成 List<List<Point>>，確保跟美化演算法完全契合
-  List<List<Point>> lines = [[]]; 
+  List<List<pf.Point>> lines = [[]]; // 🌟 使用 pf.Point
   Color selectedColor = Colors.blue;
 
   @override
@@ -20,13 +19,13 @@ class _TopMathNativeState extends State<TopMathNative> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 1. 底層：JPG 教材
+          // 1. 底層：您的教材 (範例圖)
           Center(child: Image.network('https://picsum.photos/1024/768', fit: BoxFit.contain)),
           
-          // 2. 中層：零漏筆原生捕捉層
+          // 2. 中層：零漏筆手寫層 (Listener 原生監聽)
           Listener(
-            onPointerDown: (e) => setState(() => lines.add([Point(e.localPosition.dx, e.localPosition.dy)])),
-            onPointerMove: (e) => setState(() => lines.last.add(Point(e.localPosition.dx, e.localPosition.dy))),
+            onPointerDown: (e) => setState(() => lines.add([pf.Point(e.localPosition.dx, e.localPosition.dy)])),
+            onPointerMove: (e) => setState(() => lines.last.add(pf.Point(e.localPosition.dx, e.localPosition.dy))),
             child: CustomPaint(
               painter: MyPainter(lines: lines, color: selectedColor),
               size: Size.infinite,
@@ -61,7 +60,7 @@ class _TopMathNativeState extends State<TopMathNative> {
 }
 
 class MyPainter extends CustomPainter {
-  final List<List<Point>> lines;
+  final List<List<pf.Point>> lines;
   final Color color;
   MyPainter({required this.lines, required this.color});
 
@@ -70,8 +69,8 @@ class MyPainter extends CustomPainter {
     final paint = Paint()..color = color;
     for (final line in lines) {
       if (line.isEmpty) continue;
-      // 🌟 Perfect Freehand 美化邏輯
-      final outlinePoints = getOutlinePoints(line, size: 4, thinning: 0.5, smoothing: 0.5, streamline: 0.5);
+      // 🌟 修正點：加上 pf. 讓電腦認得這個美化函式
+      final outlinePoints = pf.getOutlinePoints(line, size: 4, thinning: 0.5, smoothing: 0.5, streamline: 0.5);
       final path = Path();
       if (outlinePoints.isEmpty) continue;
       path.moveTo(outlinePoints[0].dx, outlinePoints[0].dy);
