@@ -19,16 +19,7 @@ class _TopMathNativeState extends State<TopMathNative> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 底層教材圖
-          Center(
-            child: Image.network(
-              'https://picsum.photos/1024/768', 
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => const Text('教材載入中...'),
-            ),
-          ),
-          
-          // 原生零漏筆監聽層 (核心技術)
+          Center(child: Image.network('https://picsum.photos/1024/768', fit: BoxFit.contain)),
           Listener(
             onPointerDown: (e) => setState(() => lines.add([pf.Point(e.localPosition.dx, e.localPosition.dy)])),
             onPointerMove: (e) => setState(() => lines.last.add(pf.Point(e.localPosition.dx, e.localPosition.dy))),
@@ -37,27 +28,18 @@ class _TopMathNativeState extends State<TopMathNative> {
               size: Size.infinite,
             ),
           ),
-          
-          // 圓角工具列
           Positioned(
             top: 50, right: 20,
             child: Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9), 
-                borderRadius: BorderRadius.circular(20), 
-                boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12)]
-              ),
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(20), boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12)]),
               child: Column(
                 children: [
-                  _colorBtn(Colors.blue),
-                  _colorBtn(Colors.red),
-                  _colorBtn(Colors.black),
+                  IconButton(icon: const Icon(Icons.circle, color: Colors.blue), onPressed: () => setState(() => selectedColor = Colors.blue)),
+                  IconButton(icon: const Icon(Icons.circle, color: Colors.red), onPressed: () => setState(() => selectedColor = Colors.red)),
+                  IconButton(icon: const Icon(Icons.circle, color: Colors.black), onPressed: () => setState(() => selectedColor = Colors.black)),
                   const Divider(),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                    onPressed: () => setState(() => lines = [[]]),
-                  ),
+                  IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => setState(() => lines = [[]])),
                 ],
               ),
             ),
@@ -66,11 +48,6 @@ class _TopMathNativeState extends State<TopMathNative> {
       ),
     );
   }
-
-  Widget _colorBtn(Color col) => IconButton(
-    icon: Icon(Icons.circle, color: col),
-    onPressed: () => setState(() => selectedColor = col),
-  );
 }
 
 class MyPainter extends CustomPainter {
@@ -84,10 +61,10 @@ class MyPainter extends CustomPainter {
     for (final line in lines) {
       if (line.isEmpty) continue;
       
-      // 🌟 修正點：移除 const，讓編譯順利通過
+      // 🌟 這裡已經拿掉了 const，絕對不會再報錯！
       final strokePoints = pf.getStroke(
         line,
-        options: const pf.StrokeOptions(
+        options: pf.StrokeOptions(
           size: 4,
           thinning: 0.5,
           smoothing: 0.5,
@@ -99,14 +76,11 @@ class MyPainter extends CustomPainter {
       final path = Path();
       if (strokePoints.isEmpty) continue;
       path.moveTo(strokePoints[0].dx, strokePoints[0].dy);
-      for (final p in strokePoints) {
-        path.lineTo(p.dx, p.dy);
-      }
+      for (final p in strokePoints) { path.lineTo(p.dx, p.dy); }
       path.close();
       canvas.drawPath(path, paint);
     }
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
