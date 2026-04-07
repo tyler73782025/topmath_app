@@ -10,10 +10,10 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "極速組裝零件"
+      - name: "下載零件並編譯"
         run: |
           flutter pub get
-          # 🌟 改成編譯框架模式，這樣它就絕對不會跟您要 Apple ID 認證
+          # 🌟 使用模擬器模式編譯，徹底繞過煩人的 Apple ID 簽名認證
           flutter build ios --no-codesign --simulator
           
       - name: "產生成品檔案"
