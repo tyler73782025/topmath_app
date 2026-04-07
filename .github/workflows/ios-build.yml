@@ -10,14 +10,14 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "下載零件並編譯 (暴力破解版)"
+      - name: "下載零件並編譯 (實體機正規版)"
         run: |
           flutter pub get
-          # 🌟 關鍵：雖然是模擬器模式，但強制要求編譯 ARM64 結構，這就是 iPad 能跑的祕訣！
-          flutter build ios --no-codesign --simulator --dart-define=FLUTTER_XCODE_ONLY_ARCH_QUERY=NO
+          # 🌟 關鍵：強制指定 iphoneos 模式，並使用代碼跳過認證檢查
+          flutter build ios --release --no-codesign --no-tree-shake-icons
           
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
         with:
           name: TopMath_Pro_App
-          path: build/ios/iphonesimulator/Runner.app
+          path: build/ios/iphoneos/Runner.app
