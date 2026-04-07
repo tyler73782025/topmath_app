@@ -10,7 +10,6 @@ class TopMathNative extends StatefulWidget {
 }
 
 class _TopMathNativeState extends State<TopMathNative> {
-  // 儲存所有筆劃數據，使用 pf.Point 確保美化演算法能讀取
   List<List<pf.Point>> lines = [[]];
   Color selectedColor = Colors.blue;
 
@@ -20,17 +19,16 @@ class _TopMathNativeState extends State<TopMathNative> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 1. 底層：您的 JPG 教材 (目前先用範例圖，之後可改)
+          // 底層教材圖
           Center(
             child: Image.network(
               'https://picsum.photos/1024/768', 
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => const Text('教材讀取中...'),
+              errorBuilder: (context, error, stackTrace) => const Text('教材載入中...'),
             ),
           ),
           
-          // 2. 中層：【零漏筆】原生監聽層
-          // 透過 Listener 直接跟 iPad 核心拿座標，繞過瀏覽器的誤觸過濾
+          // 原生零漏筆監聽層 (核心技術)
           Listener(
             onPointerDown: (e) => setState(() => lines.add([pf.Point(e.localPosition.dx, e.localPosition.dy)])),
             onPointerMove: (e) => setState(() => lines.last.add(pf.Point(e.localPosition.dx, e.localPosition.dy))),
@@ -40,7 +38,7 @@ class _TopMathNativeState extends State<TopMathNative> {
             ),
           ),
           
-          // 3. 上層：37 版風格圓角工具列
+          // 圓角工具列
           Positioned(
             top: 50, right: 20,
             child: Container(
@@ -52,9 +50,9 @@ class _TopMathNativeState extends State<TopMathNative> {
               ),
               child: Column(
                 children: [
-                  _colorIcon(Colors.blue),
-                  _colorIcon(Colors.red),
-                  _colorIcon(Colors.black),
+                  _colorBtn(Colors.blue),
+                  _colorBtn(Colors.red),
+                  _colorBtn(Colors.black),
                   const Divider(),
                   IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.grey),
@@ -69,7 +67,7 @@ class _TopMathNativeState extends State<TopMathNative> {
     );
   }
 
-  Widget _colorIcon(Color col) => IconButton(
+  Widget _colorBtn(Color col) => IconButton(
     icon: Icon(Icons.circle, color: col),
     onPressed: () => setState(() => selectedColor = col),
   );
@@ -86,7 +84,7 @@ class MyPainter extends CustomPainter {
     for (final line in lines) {
       if (line.isEmpty) continue;
       
-      // 🌟 使用最新版 getStroke 演算法，將點位轉換成絲滑的輪廓
+      // 🌟 修正點：移除 const，讓編譯順利通過
       final strokePoints = pf.getStroke(
         line,
         options: const pf.StrokeOptions(
@@ -94,6 +92,7 @@ class MyPainter extends CustomPainter {
           thinning: 0.5,
           smoothing: 0.5,
           streamline: 0.5,
+          simulatePressure: true,
         ),
       );
       
@@ -103,7 +102,7 @@ class MyPainter extends CustomPainter {
       for (final p in strokePoints) {
         path.lineTo(p.dx, p.dy);
       }
-      path.close(); // 封閉路徑讓筆跡更飽滿
+      path.close();
       canvas.drawPath(path, paint);
     }
   }

@@ -13,7 +13,6 @@ jobs:
       - name: "下載零件並編譯"
         run: |
           flutter pub get
-          # 🌟 使用模擬器模式編譯，徹底繞過煩人的 Apple ID 簽名認證
           flutter build ios --no-codesign --simulator
           
       - name: "產生成品檔案"
