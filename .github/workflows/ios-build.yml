@@ -10,13 +10,14 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "下載零件並編譯"
+      - name: "下載零件並編譯 (實體機版)"
         run: |
           flutter pub get
-          flutter build ios --no-codesign --simulator
+          # 🌟 改成 iphoneos 模式，這才是給真實 iPad 用的！
+          flutter build ios --release --no-codesign --no-tree-shake-icons
           
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
         with:
           name: TopMath_Pro_App
-          path: build/ios/iphonesimulator/Runner.app
+          path: build/ios/iphoneos/Runner.app # 🌟 路徑也要對準實體機版
