@@ -19,10 +19,10 @@ class _TopMathNativeState extends State<TopMathNative> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 1. 底層：教材圖 (範例)
+          // 1. 底層教材 (範例)
           Center(child: Image.network('https://picsum.photos/1024/768', fit: BoxFit.contain)),
           
-          // 2. 中層：零漏筆原生監聽層
+          // 2. 原生零漏筆監聽層
           Listener(
             onPointerDown: (e) => setState(() => lines.add([pf.Point(e.localPosition.dx, e.localPosition.dy)])),
             onPointerMove: (e) => setState(() => lines.last.add(pf.Point(e.localPosition.dx, e.localPosition.dy))),
@@ -32,16 +32,12 @@ class _TopMathNativeState extends State<TopMathNative> {
             ),
           ),
           
-          // 3. 上層：圓角工具列
+          // 3. 工具列
           Positioned(
             top: 50, right: 20,
             child: Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9), 
-                borderRadius: BorderRadius.circular(20), 
-                boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12)]
-              ),
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(20), boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12)]),
               child: Column(
                 children: [
                   IconButton(icon: const Icon(Icons.circle, color: Colors.blue), onPressed: () => setState(() => selectedColor = Colors.blue)),
@@ -70,21 +66,16 @@ class MyPainter extends CustomPainter {
     for (final line in lines) {
       if (line.isEmpty) continue;
       
-      // 🌟 關鍵修正：函式名稱是 getOutline，不是 getOutlinePoints
-      final outlinePoints = pf.getOutline(line, options: const pf.JLOptions(
-        size: 4,
-        thinning: 0.5,
-        smoothing: 0.5,
-        streamline: 0.5,
-      ));
+      // 🌟 最終修正：拋棄所有舊設定，用最簡單的 getStroke
+      final strokePoints = pf.getStroke(line, size: 4, thinning: 0.5, smoothing: 0.5, streamline: 0.5);
       
       final path = Path();
-      if (outlinePoints.isEmpty) continue;
-      path.moveTo(outlinePoints[0].dx, outlinePoints[0].dy);
-      for (final p in outlinePoints) {
+      if (strokePoints.isEmpty) continue;
+      path.moveTo(strokePoints[0].dx, strokePoints[0].dy);
+      for (final p in strokePoints) {
         path.lineTo(p.dx, p.dy);
       }
-      path.close(); // 封閉路徑，讓筆觸更實心
+      path.close();
       canvas.drawPath(path, paint);
     }
   }
