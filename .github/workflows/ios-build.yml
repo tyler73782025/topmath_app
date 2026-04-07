@@ -1,15 +1,27 @@
 name: "打包 iPad APP"
 on: [push]
+
+# 🌟 加上這段權限設定，工廠才能把成品寫入 GitHub 的倉庫
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-      - run: flutter pub get  # 🌟 只要這行就好，不要 add 任何東西
-      - run: flutter build ios --release --no-codesign 
+        with:
+          channel: 'stable'
+      
+      - name: "下載零件並編譯"
+        run: |
+          flutter pub get
+          flutter build ios --release --no-codesign 
+          
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
         with:
-          name: TopMath_JPG_App
-          path: build/ios/iphoneos/Runner.app
+          name: TopMath_Pro_App
+          path: build/ios/iphoneos/Runner.app # 🌟 直接指向這個資料夾，不再層層打包
