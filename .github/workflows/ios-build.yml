@@ -13,9 +13,8 @@ jobs:
       - name: "正式編譯 (明輝老師專屬版)"
         run: |
           flutter pub get
-          # 🌟 核心：注入您的 Team ID，開啟實體機編譯權限
+          # 🌟 修正點：移除無效參數，保留最重要的 Team ID 注入
           flutter build ios --release --no-codesign --no-tree-shake-icons \
-            --project-name=topmath_app \
             --dart-define=DEVELOPMENT_TEAM=7L9KZBFYZW
           
       - name: "產生成品檔案"
