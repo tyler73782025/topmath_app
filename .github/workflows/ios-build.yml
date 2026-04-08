@@ -10,12 +10,11 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "正式編譯 (明輝老師專屬版)"
+      - name: "提取原生零件 (避開證書錯誤)"
         run: |
           flutter pub get
-          # 🌟 修正點：移除無效參數，保留最重要的 Team ID 注入
-          flutter build ios --release --no-codesign --no-tree-shake-icons \
-            --dart-define=DEVELOPMENT_TEAM=7L9KZBFYZW
+          # 🌟 關鍵：用 --no-codesign 徹底關閉簽名檢查，保證能編譯成功
+          flutter build ios --release --no-codesign --no-tree-shake-icons
           
       - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
