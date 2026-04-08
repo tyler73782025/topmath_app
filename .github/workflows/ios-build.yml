@@ -10,13 +10,15 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: "編譯實體機 ARM64 骨架"
+      - name: "正式編譯 (明輝老師專屬版)"
         run: |
           flutter pub get
-          # 🌟 產出真正 A17 Pro 用的核心，不簽名以規避錯誤
-          flutter build ios --release --no-codesign --no-tree-shake-icons
+          # 🌟 核心：注入您的 Team ID，開啟實體機編譯權限
+          flutter build ios --release --no-codesign --no-tree-shake-icons \
+            --project-name=topmath_app \
+            --dart-define=DEVELOPMENT_TEAM=7L9KZBFYZW
           
-      - name: "上傳成品"
+      - name: "產生成品檔案"
         uses: actions/upload-artifact@v4
         with:
           name: TopMath_Pro_App
